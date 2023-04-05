@@ -12,7 +12,12 @@
     <modules>
         <module>dispatcher</module>
         <module>common-rabbitmq</module>
+        <module>node</module>
     </modules>
+
+    <properties>
+            <telegrambot.starter.version>6.1.0</telegrambot.starter.version>
+    </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

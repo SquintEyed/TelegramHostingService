@@ -22,6 +22,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private String botToken;
 
     private final UpdateController updateController;
+
     private final MessageUtils messageUtils;
 
     public TelegramBot(UpdateController updateController, MessageUtils messageUtils) {
