@@ -19,3 +19,40 @@
 2023-04-05 22:30:56 DEBUG UpdateProducerImpl:24 - hello2
 2023-04-05 22:31:29 DEBUG UpdateProducerImpl:24 - hello2
 2023-04-05 22:31:50 DEBUG UpdateProducerImpl:24 - hello33
+2023-04-06 22:39:59 DEBUG UpdateProducerImpl:24 - ert
+2023-04-06 22:52:02 DEBUG UpdateProducerImpl:24 - kjt
+2023-04-06 23:03:44 DEBUG UpdateProducerImpl:24 - eee
+2023-04-06 23:08:36 DEBUG UpdateProducerImpl:24 - sdsddd
+2023-04-06 23:17:36 DEBUG UpdateProducerImpl:24 - qwerty
+2023-04-06 23:19:08 DEBUG UpdateProducerImpl:24 - mju
+2023-04-08 21:56:32 DEBUG UpdateProducerImpl:24 - 123
+2023-04-08 21:56:47 DEBUG UpdateProducerImpl:24 - help
+2023-04-08 21:56:52 DEBUG UpdateProducerImpl:24 - /help
+2023-04-08 21:56:54 DEBUG UpdateProducerImpl:24 - /help
+2023-04-08 21:57:56 DEBUG UpdateProducerImpl:24 - /start
+2023-04-08 21:58:38 DEBUG UpdateProducerImpl:24 - 
+2023-04-08 21:58:48 DEBUG UpdateProducerImpl:24 - 
+2023-04-08 21:58:57 DEBUG UpdateProducerImpl:24 - kk
+2023-04-08 23:14:23 DEBUG UpdateProducerImpl:24 - 111
+2023-04-08 23:14:29 DEBUG UpdateProducerImpl:24 - прррп
+2023-04-09 11:11:21 DEBUG UpdateProducerImpl:24 - ыву
+2023-04-09 11:11:25 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 11:19:49 DEBUG UpdateProducerImpl:24 - ввав
+2023-04-09 11:21:49 DEBUG UpdateProducerImpl:24 - 
+2023-04-09 11:29:31 DEBUG UpdateProducerImpl:24 - help
+2023-04-09 11:29:38 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 11:36:08 DEBUG UpdateProducerImpl:24 - /registration
+2023-04-09 11:38:40 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 11:38:46 DEBUG UpdateProducerImpl:24 - /registration
+2023-04-09 11:38:54 DEBUG UpdateProducerImpl:24 - /start
+2023-04-09 11:38:59 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 11:39:45 DEBUG UpdateProducerImpl:24 - /start
+2023-04-09 11:56:54 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 11:56:57 DEBUG UpdateProducerImpl:24 - /start
+2023-04-09 12:00:03 DEBUG UpdateProducerImpl:24 - /start
+2023-04-09 12:00:05 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 12:07:48 DEBUG UpdateProducerImpl:24 - /help
+2023-04-09 12:07:51 DEBUG UpdateProducerImpl:24 - /start
+2023-04-09 12:07:53 DEBUG UpdateProducerImpl:24 - /registration
+2023-04-09 12:07:57 DEBUG UpdateProducerImpl:24 - /cancel
+2023-04-09 12:08:00 DEBUG UpdateProducerImpl:24 - /help

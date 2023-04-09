@@ -35,6 +35,8 @@ public class ConsumerServiceImpl implements ConsumerService {
 
         log.debug("NODE: docMessage is received");
 
+        mainService.processedDocMessage(update);
+
     }
 
     @Override
@@ -42,6 +44,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     public void consumePhotoMessageUpdates(Update update) {
 
         log.debug("NODE: photoMessage is received");
+
+        mainService.processedPhotoMessage(update);
 
     }
 }

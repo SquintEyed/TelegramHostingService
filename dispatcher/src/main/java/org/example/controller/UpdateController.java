@@ -79,7 +79,7 @@ public class UpdateController {
 
         updateProducer.produce(TEXT_MESSAGE_UPDATE, update);
 
-        setFileIsReceivedView(update);
+       // setFileIsReceivedView(update);
     }
 
     private void setUnsupportedMessageType(Update update) {
