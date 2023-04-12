@@ -1,10 +1,15 @@
 package org.example.service.impl;
 
+import lombok.extern.log4j.Log4j;
 import org.example.dao.AppUserDao;
 import org.example.dao.RawDataDao;
+import org.example.entity.AppDocument;
+import org.example.entity.AppPhoto;
 import org.example.entity.AppUser;
 import org.example.entity.RawData;
 import org.example.entity.enums.UserState;
+import org.example.exception.UploadFileException;
+import org.example.service.FileService;
 import org.example.service.MainService;
 import org.example.service.ProducerService;
 import org.example.service.enums.ServiceCommand;
@@ -16,19 +21,24 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.util.Objects;
 
 @Service
+@Log4j
 public class MainServiceImpl implements MainService {
 
     private final RawDataDao rawDataDao;
 
     private final AppUserDao appUserDao;
 
+    private final FileService fileService;
+
     private final ProducerService producerService;
 
     public MainServiceImpl(RawDataDao rawDataDao,
                            AppUserDao appUserDao,
+                           FileService fileService,
                            ProducerService producerService) {
         this.rawDataDao = rawDataDao;
         this.appUserDao = appUserDao;
+        this.fileService = fileService;
         this.producerService = producerService;
     }
 
@@ -68,16 +78,26 @@ public class MainServiceImpl implements MainService {
 
         //TODO make method to save document later...
 
-        AppUser appUser =findOrSaveAppUser(update);
+        AppUser appUser = findOrSaveAppUser(update);
 
         if (isNotAllowToSendContent(update)) {
-
             return;
         }
 
-        String outputAnswer = "Document successfully downloading, url=yandex-doc.com";
+        try {
+           AppDocument appDocument = fileService.processDoc(update.getMessage());
 
-        sendAnswer(outputAnswer,update);
+            String outputAnswer = "Document successfully downloading, url=yandex-doc.com";
+
+            sendAnswer(outputAnswer,update);
+        }
+
+        catch (UploadFileException ex) {
+            log.error(ex);
+            String error = "Error!!";
+            sendAnswer(error, update);
+        }
+
     }
 
     @Override
@@ -85,16 +105,23 @@ public class MainServiceImpl implements MainService {
 
         saveRawData(update);
 
-        //TODO make method to save photo later...
-
         if (isNotAllowToSendContent(update)) {
-
             return;
         }
 
-        String outputAnswer = "Photo successfully downloading, url=yandex-photo.com";
+        try {
+            AppPhoto appPhoto = fileService.processPhoto(update.getMessage());
 
-        sendAnswer(outputAnswer,update);
+            String outputAnswer = "Photo successfully downloading, url=yandex-photo.com";
+
+            sendAnswer(outputAnswer, update);
+        }
+
+        catch (UploadFileException ex) {
+            log.error(ex);
+            String error = "Error!!";
+            sendAnswer(error, update);
+        }
     }
 
     private boolean isNotAllowToSendContent(Update update) {
