@@ -1,7 +1,7 @@
 package org.example.service.impl;
 
 import lombok.extern.log4j.Log4j;
-import org.example.controller.UpdateController;
+import org.example.controller.UpdateProcessor;
 import org.example.service.AnswerConsumer;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -12,11 +12,11 @@ import static org.example.model.RabbitQueue.*;
 @Log4j
 public class AnswerConsumerImpl implements AnswerConsumer {
 
-    private final UpdateController updateController;
+    private final UpdateProcessor updateProcessor;
 
-    public AnswerConsumerImpl(UpdateController updateController) {
+    public AnswerConsumerImpl(UpdateProcessor updateProcessor) {
 
-        this.updateController = updateController;
+        this.updateProcessor = updateProcessor;
     }
 
 
@@ -24,7 +24,7 @@ public class AnswerConsumerImpl implements AnswerConsumer {
     @RabbitListener(queues = ANSWER_MESSAGE)
     public void consume(SendMessage sendMessage) {
 
-        updateController.setView(sendMessage);
+        updateProcessor.setView(sendMessage);
 
     }
 }

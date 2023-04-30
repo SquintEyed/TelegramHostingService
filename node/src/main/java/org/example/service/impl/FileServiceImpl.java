@@ -1,14 +1,15 @@
 package org.example.service.impl;
 
-import org.apache.commons.io.IOExceptionList;
 import org.example.dao.AppDocumentDao;
 import org.example.dao.AppPhotoDao;
 import org.example.dao.BinaryContentDao;
 import org.example.entity.AppDocument;
 import org.example.entity.AppPhoto;
 import org.example.entity.BinaryContent;
+import org.example.enums.LinkType;
 import org.example.exception.UploadFileException;
 import org.example.service.FileService;
+import org.example.utils.CryptoTool;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,8 +24,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -32,21 +32,26 @@ public class FileServiceImpl implements FileService {
     @Value("${token}")
     private String token;
 
+    @Value("${link.address}")
+    private String linkAddress;
+
     @Value("${service.file_info.uri}")
     private String fileInfoUri;
 
     @Value("${service.file_storage.uri}")
     private String fileStorageUri;
 
+    private final CryptoTool cryptoTool;
     private final AppPhotoDao appPhotoDao;
     private final AppDocumentDao appDocumentDao;
     private final BinaryContentDao binaryContentDao;
 
-
-    public FileServiceImpl(AppPhotoDao appPhotoDao,
+    public FileServiceImpl(CryptoTool cryptoTool,
+                           AppPhotoDao appPhotoDao,
                            AppDocumentDao appDocumentDao,
                            BinaryContentDao binaryContentDao) {
 
+        this.cryptoTool = cryptoTool;
         this.appPhotoDao = appPhotoDao;
         this.appDocumentDao = appDocumentDao;
         this.binaryContentDao = binaryContentDao;
@@ -107,6 +112,15 @@ public class FileServiceImpl implements FileService {
         }
 
         throw new UploadFileException("Bad response from telegram service " + response);
+    }
+
+    @Override
+    public String generatedLink(Long docId, LinkType linkType) {
+
+        String prefixLink = cryptoTool.hashOf(docId);
+
+        return "http://" + linkAddress + "/" + linkType + prefixLink;
+
     }
 
     private BinaryContent getPersistentBinaryContent(ResponseEntity<String> response) {

@@ -8,17 +8,19 @@ import org.example.entity.AppPhoto;
 import org.example.entity.AppUser;
 import org.example.entity.RawData;
 import org.example.entity.enums.UserState;
+import org.example.enums.LinkType;
 import org.example.exception.UploadFileException;
+import org.example.service.AppUserService;
 import org.example.service.FileService;
 import org.example.service.MainService;
 import org.example.service.ProducerService;
-import org.example.service.enums.ServiceCommand;
+import org.example.enums.ServiceCommand;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Log4j
@@ -30,15 +32,19 @@ public class MainServiceImpl implements MainService {
 
     private final FileService fileService;
 
+    private final AppUserService appUserService;
+
     private final ProducerService producerService;
 
     public MainServiceImpl(RawDataDao rawDataDao,
                            AppUserDao appUserDao,
                            FileService fileService,
+                           AppUserService appUserService,
                            ProducerService producerService) {
         this.rawDataDao = rawDataDao;
         this.appUserDao = appUserDao;
         this.fileService = fileService;
+        this.appUserService = appUserService;
         this.producerService = producerService;
     }
 
@@ -51,6 +57,7 @@ public class MainServiceImpl implements MainService {
         AppUser appUser = findOrSaveAppUser(update);
 
         String textFromUpdate = update.getMessage().getText();
+
         String outputText = "";
 
         if (ServiceCommand.CANCEL.equals(ServiceCommand.fromValue(textFromUpdate))) {
@@ -58,14 +65,14 @@ public class MainServiceImpl implements MainService {
             outputText = cancelProcess(appUser);
         }
 
-        if (appUser.getState().equals(UserState.BASIC_STATE)) {
+        else if (appUser.getState().equals(UserState.BASIC_STATE)) {
 
             outputText = processServiceCommand(appUser, textFromUpdate);
         }
 
-        if (appUser.getState().equals(UserState.WAIT_FOR_EMAIL_STATE)) {
+        else if (appUser.getState().equals(UserState.WAIT_FOR_EMAIL_STATE)) {
 
-            //TODO make later
+           outputText = appUserService.setEmail(appUser, textFromUpdate);
         }
 
         sendAnswer(outputText, update);
@@ -76,8 +83,6 @@ public class MainServiceImpl implements MainService {
 
         saveRawData(update);
 
-        //TODO make method to save document later...
-
         AppUser appUser = findOrSaveAppUser(update);
 
         if (isNotAllowToSendContent(update)) {
@@ -87,9 +92,13 @@ public class MainServiceImpl implements MainService {
         try {
            AppDocument appDocument = fileService.processDoc(update.getMessage());
 
-            String outputAnswer = "Document successfully downloading, url=yandex-doc.com";
+            String link = fileService.generatedLink(appDocument.getId(), LinkType.GET_DOC);
 
-            sendAnswer(outputAnswer,update);
+            String answer = "Document successfully downloading. \n" +
+                    "link to download:\n" +
+                    link;
+
+            sendAnswer(answer, update);
         }
 
         catch (UploadFileException ex) {
@@ -112,7 +121,11 @@ public class MainServiceImpl implements MainService {
         try {
             AppPhoto appPhoto = fileService.processPhoto(update.getMessage());
 
-            String outputAnswer = "Photo successfully downloading, url=yandex-photo.com";
+            String link = fileService.generatedLink(appPhoto.getId(), LinkType.GET_PHOTO);
+
+            String outputAnswer = "Photo successfully downloading.\n" +
+                    "link for download:\n" +
+                    link;
 
             sendAnswer(outputAnswer, update);
         }
@@ -169,7 +182,7 @@ public class MainServiceImpl implements MainService {
 
         if (ServiceCommand.REGISTRATION.equals(serviceCommand)) {
 
-            return "Error, command unavailable";
+            return appUserService.registerUser(appUser);
         }
 
         if (ServiceCommand.HELP.equals(serviceCommand)) {
@@ -179,7 +192,11 @@ public class MainServiceImpl implements MainService {
 
         if (ServiceCommand.START.equals(serviceCommand)) {
 
-            return  "Welcome to HostingService bot application";
+            return  "Welcome to HostingService bot application \n" +
+                    "/help - to available command\n" +
+                    "/registration - to register in app \n" +
+                    "/cancel - to cancel current command";
+
         }
 
         return "Error, unknown command, enter /help to continue";
@@ -206,24 +223,22 @@ public class MainServiceImpl implements MainService {
 
         User telegramUser = update.getMessage().getFrom();
 
-        AppUser persistentAppUser = appUserDao.findAppUserByTelegramUserId(telegramUser.getId());
+        Optional<AppUser> optionalAppUser = appUserDao.findByTelegramUserId(telegramUser.getId());
 
-        if(Objects.isNull(persistentAppUser)) {
+        if(!optionalAppUser.isPresent()) {
 
             AppUser newUser = AppUser.builder()
                     .telegramUserId(telegramUser.getId())
                     .firstName(telegramUser.getFirstName())
                     .lastName(telegramUser.getLastName())
                     .userName(telegramUser.getUserName())
-                    //TODO изменить после доработки кода
-                    .isActive(true)
+                    .isActive(false)
                     .state(UserState.BASIC_STATE)
                     .build();
             return appUserDao.saveAndFlush(newUser);
-
         }
 
-        return persistentAppUser;
+        return optionalAppUser.get();
     }
 
     private void saveRawData(Update update) {

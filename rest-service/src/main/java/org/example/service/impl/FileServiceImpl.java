@@ -1,68 +1,49 @@
 package org.example.service.impl;
 
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.io.FileUtils;
 import org.example.dao.AppDocumentDao;
 import org.example.dao.AppPhotoDao;
 import org.example.entity.AppDocument;
 import org.example.entity.AppPhoto;
-import org.example.entity.BinaryContent;
 import org.example.exceptions.BadRequestException;
 import org.example.service.FileService;
-import org.springframework.core.io.FileSystemResource;
+import org.example.utils.CryptoTool;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
 
 @Service
 @Log4j
 public class FileServiceImpl implements FileService {
 
+    private final CryptoTool cryptoTool;
     private final AppPhotoDao appPhotoDao;
     private final AppDocumentDao appDocumentDao;
 
-    public FileServiceImpl(AppPhotoDao appPhotoDao, AppDocumentDao appDocumentDao) {
+    public FileServiceImpl(CryptoTool cryptoTool, AppPhotoDao appPhotoDao, AppDocumentDao appDocumentDao) {
+        this.cryptoTool = cryptoTool;
         this.appPhotoDao = appPhotoDao;
         this.appDocumentDao = appDocumentDao;
     }
 
 
     @Override
-    public AppPhoto getPhoto(String photoId) {
+    public AppPhoto getPhoto(String hashId) {
 
-        Long id = Long.parseLong(photoId);
+        Long id = cryptoTool.idOf(hashId);
 
         return appPhotoDao.findById(id)
                 .orElseThrow(
-                        () -> new BadRequestException(String.format("Photo with id = %d not found",id))
-                );
+                        () -> new BadRequestException(String.format("Photo with id = %d not found", id)));
 
     }
 
     @Override
-    public AppDocument getDocument(String docId) {
+    public AppDocument getDocument(String hashId) {
 
-        Long id = Long.parseLong(docId);
+        Long id = cryptoTool.idOf(hashId);
 
         return appDocumentDao.findById(id)
                 .orElseThrow(
-                        ()-> new BadRequestException("Document with id = " + id + " not found")
-                );
-    }
-
-    @Override
-    public FileSystemResource getFileFileSystemResources(BinaryContent binaryContent) {
-
-        try {
-            File tempFile = File.createTempFile("tempFile", "bin");
-            tempFile.deleteOnExit();
-            FileUtils.writeByteArrayToFile(tempFile, binaryContent.getFileAsArrayOfBytes());
-            return new FileSystemResource(tempFile);
-        }
-        catch(IOException e) {
-            log.error(e.getMessage());
-        }
-        return null;
+                        ()-> new BadRequestException("Document with id = " + id + " not found"));
     }
 }

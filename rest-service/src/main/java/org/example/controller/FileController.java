@@ -1,17 +1,18 @@
 package org.example.controller;
 
+import lombok.extern.log4j.Log4j;
 import org.example.entity.AppDocument;
 import org.example.entity.AppPhoto;
 import org.example.service.FileService;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Objects;
 
+@Log4j
 @RestController
 @RequestMapping("/file")
 public class FileController {
@@ -23,28 +24,55 @@ public class FileController {
     }
 
     @GetMapping("/get-doc/{doc_id}")
-    public ResponseEntity<?> getDoc(@PathVariable(name = "doc_id") String docId) {
+    public void getDoc(@PathVariable(name = "doc_id") String docId, HttpServletResponse response) {
 
         AppDocument appDocument = fileService.getDocument(docId);
 
-        FileSystemResource fileSystemResource = fileService.getFileFileSystemResources(appDocument.getBinaryContent());
+        if (Objects.isNull(appDocument)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(appDocument.getMimeType()))
-                .header("Content-disposition", "attachment; filename=" + appDocument.getDocName())
-                .body(fileSystemResource);
+        response.setContentType(MediaType.parseMediaType(appDocument.getMimeType()).toString());
+        response.setHeader("Content-disposition","attachment; filename=" + appDocument.getDocName());
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        try {
+            OutputStream output = response.getOutputStream();
+            output.write(appDocument.getBinaryContent().getFileAsArrayOfBytes());
+            output.close();
+        }
+
+        catch (IOException ex) {
+            log.error(ex);
+
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/get-photo/{photo_id}")
-    public ResponseEntity<?> getPhoto(@PathVariable(name = "photo_id") String photoId) {
+    public void getPhoto(@PathVariable(name = "photo_id") String photoId, HttpServletResponse response) {
 
         AppPhoto appPhoto = fileService.getPhoto(photoId);
 
-        FileSystemResource fileSystemResource = fileService.getFileFileSystemResources(appPhoto.getBinaryContent());
+        if (Objects.isNull(response)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .header("Content-disposition", "attachment")
-                .body(fileSystemResource);
+        response.setHeader("Content-disposition", "attachment;");
+        response.setContentType(MediaType.IMAGE_JPEG.toString());
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        try {
+            OutputStream output = response.getOutputStream();
+            output.write(appPhoto.getBinaryContent().getFileAsArrayOfBytes());
+            output.close();
+        }
+
+        catch (IOException ex) {
+            log.error(ex);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package org.example.service.enums;
+package org.example.enums;
 
 public enum ServiceCommand {
 
@@ -27,7 +27,6 @@ public enum ServiceCommand {
                 return command;
             }
         }
-
         return null;
     }
 }

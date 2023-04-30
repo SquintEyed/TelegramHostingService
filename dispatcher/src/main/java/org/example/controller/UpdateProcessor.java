@@ -13,13 +13,13 @@ import java.util.Objects;
 
 @Component
 @Log4j
-public class UpdateController {
+public class UpdateProcessor {
 
     private TelegramBot telegramBot;
     private final MessageUtils messageUtils;
     private final UpdateProducer updateProducer;
 
-    public UpdateController(MessageUtils messageUtils, UpdateProducer updateProducer) {
+    public UpdateProcessor(MessageUtils messageUtils, UpdateProducer updateProducer) {
         this.messageUtils = messageUtils;
         this.updateProducer = updateProducer;
     }
@@ -31,34 +31,38 @@ public class UpdateController {
 
     public void processUpdate(Update update) {
 
-        if (Objects.isNull(update)) {
+        if (update == null) {
             log.error("Received update is null");
             return;
         }
 
-        distributeMessagesByType(update);
+        if (update.hasMessage()) {
+            distributeMessagesByType(update);
+            return;
+        }
+
+        log.error("unsupported type message" + update);
     }
 
     private void distributeMessagesByType(Update update) {
 
         Message message = update.getMessage();
 
-        if (message.getText() != null) {
+        if (message.hasText()) {
             processTextMessage(update);
-            return;
         }
 
-        if (message.getDocument() != null) {
+        else if (message.hasDocument()) {
             processDocumentMessage(update);
-            return;
         }
 
-        if (message.getPhoto() !=  null) {
+        else if (message.hasPhoto()) {
             processPhotoMessage(update);
-            return;
         }
 
-        setUnsupportedMessageType(update);
+        else {
+            setUnsupportedMessageType(update);
+        }
     }
 
     private void processPhotoMessage(Update update) {
@@ -78,8 +82,6 @@ public class UpdateController {
     private void processTextMessage(Update update) {
 
         updateProducer.produce(TEXT_MESSAGE_UPDATE, update);
-
-       // setFileIsReceivedView(update);
     }
 
     private void setUnsupportedMessageType(Update update) {
