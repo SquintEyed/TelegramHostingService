@@ -12,4 +12,4 @@ Telegram бот представляющий собой файлообменни
    - node - обработка сообщений из брокера, бизнес логика
    - rest-service - обработка запросов на скачивание файлов, и регистрацию пользователей
    - mail-service - микросервис по отправке email при регистрации
-- Использованные технологии: Java, Spring Boot, RabbitMq, Spring Data JPA, Hibernate, Docker, PostgreSQL
+- Использованные технологии: Java, Spring Boot, RabbitMq, Spring Data JPA, Hibernate, Docker, PostgreSQL, Maven
